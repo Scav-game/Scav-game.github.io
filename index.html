@@ -2341,7 +2341,7 @@ footer {
 <!-- ════════════════════════════════════════
      JAVASCRIPT
 ════════════════════════════════════════ -->
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 // ── Page Navigation ──
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -2559,4 +2559,11 @@ function submitSuggestion() {
   document.getElementById('suggest-success').style.display = 'block';
   document.getElementById('suggest-name').value  = '';
   document.getElementById('suggest-title').value = '';
-  document.getElementById('suggest-desc').value  =
+  document.getElementById('suggest-desc').value  = '';
+}
+
+// ── Init ──
+renderLeaderboard('today');
+</script>
+</body>
+</html>
