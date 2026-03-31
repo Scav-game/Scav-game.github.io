@@ -2139,9 +2139,9 @@ footer {
 
     <div style="background:var(--card);border:1px solid var(--border);padding:40px;display:flex;align-items:center;gap:36px;flex-wrap:wrap;margin-bottom:80px;position:relative;overflow:hidden;">
       <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--orange),var(--red))"></div>
-      <div style="width:96px;height:96px;background:var(--orange);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Anton',sans-serif;font-size:36px;color:var(--black);flex-shrink:0">L</div>
+      <div style="width:96px;height:96px;background:var(--orange);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Anton',sans-serif;font-size:36px;color:var(--black);flex-shrink:0">LF</div>
       <div>
-        <div style="font-family:'Anton',sans-serif;font-size:32px;color:var(--white);letter-spacing:0.5px;margin-bottom:4px">Lucas </div>
+        <div style="font-family:'Anton',sans-serif;font-size:32px;color:var(--white);letter-spacing:0.5px;margin-bottom:4px">Lucas Fawcett</div>
         <div style="font-family:'Courier Prime',monospace;font-size:10px;letter-spacing:3px;color:var(--orange);text-transform:uppercase;margin-bottom:16px">Founder · Builder · SU Aerospace Engineering</div>
         <p style="font-size:15px;color:var(--muted);line-height:1.65;max-width:580px">Baldwinsville, NY native. Syracuse University Aerospace Engineering student. Self-taught developer. Built SCAV. from scratch using Claude Code and the United AI Club at SU. Proof that the right idea, stubborn enough, finds a way to exist.</p>
       </div>
@@ -2332,17 +2332,40 @@ footer {
       </div>
     </div>
     <div class="footer-bottom">
-      <div class="footer-copy">© 2026 SCAV. ALL RIGHTS RESERVED. — LUCAS</div>
+      <div class="footer-copy">© 2026 SCAV. ALL RIGHTS RESERVED. — LUCAS FAWCETT</div>
       <div class="footer-copy">BUILT FOR THE HUNT.</div>
     </div>
   </div>
 </footer>
 
 <!-- ════════════════════════════════════════
+     FIREBASE SDK
+════════════════════════════════════════ -->
+<script data-cfasync="false" src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script data-cfasync="false" src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+
+<!-- ════════════════════════════════════════
      JAVASCRIPT
 ════════════════════════════════════════ -->
 <script data-cfasync="false">
-// ── Page Navigation ──
+// ══════════════════════════════════════
+// FIREBASE INIT
+// ══════════════════════════════════════
+const firebaseConfig = {
+  apiKey: "AIzaSyBF92IuybJsd2NOngJhQM-y5VHNlao63Bo",
+  authDomain: "scav-8aafa.firebaseapp.com",
+  databaseURL: "https://scav-8aafa-default-rtdb.firebaseio.com",
+  projectId: "scav-8aafa",
+  storageBucket: "scav-8aafa.firebasestorage.app",
+  messagingSenderId: "542456170177",
+  appId: "1:542456170177:web:de45a50d993bed0926b640"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// ══════════════════════════════════════
+// PAGE NAVIGATION
+// ══════════════════════════════════════
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-' + id).classList.add('active');
@@ -2363,130 +2386,10 @@ function scrollToDownload() {
 function toggleMenu() { document.getElementById('mobileMenu').classList.toggle('open'); }
 function closeMenu()  { document.getElementById('mobileMenu').classList.remove('open'); }
 
-// ── Leaderboard Mode (Points vs Speed) ──
-let currentMode = 'points';
-
-function switchMode(mode) {
-  currentMode = mode;
-  document.getElementById('mode-points').classList.toggle('active', mode === 'points');
-  document.getElementById('mode-speed').classList.toggle('active', mode === 'speed');
-
-  document.getElementById('points-subtabs').style.display = mode === 'points' ? 'flex' : 'none';
-  document.getElementById('speed-subtabs').style.display  = mode === 'speed'  ? 'flex' : 'none';
-  document.getElementById('points-table').style.display   = mode === 'points' ? 'block' : 'none';
-  document.getElementById('speed-table').style.display    = mode === 'speed'  ? 'block' : 'none';
-
-  // hide podium on speed mode — it's points-specific
-  document.querySelector('.podium').style.display = mode === 'points' ? 'flex' : 'none';
-
-  if (mode === 'speed') renderSpeedBoard('ch1');
-  else renderLeaderboard('today');
-}
-
-// ── Points tab ──
-function switchTab(btn, tab) {
-  document.querySelectorAll('#points-subtabs .lb-tab').forEach(t => t.classList.remove('active'));
-  btn.classList.add('active');
-  renderLeaderboard(tab);
-}
-
-// ── Speed tab ──
-function switchSpeedTab(btn, ch) {
-  document.querySelectorAll('#speed-subtabs .lb-tab').forEach(t => t.classList.remove('active'));
-  btn.classList.add('active');
-  renderSpeedBoard(ch);
-}
-
-// ── Points Data ──
+// ══════════════════════════════════════
+// SHARED HELPERS
+// ══════════════════════════════════════
 const avatarColors = ['#FF5C00','#FFB800','#FF2D2D','#7A6050','#aa5500','#cc3300','#885500'];
-
-const lbData = {
-  today: [
-    { rank:1,  init:'SK', name:'xXScavKingXx', handle:'@scavking',    challenges:3, score:1840, streak:14 },
-    { rank:2,  init:'DH', name:'daily.hunter', handle:'@dailyhunter', challenges:3, score:1720, streak:7  },
-    { rank:3,  init:'SD', name:'scav.or.die',  handle:'@scawordie',   challenges:3, score:1610, streak:21 },
-    { rank:4,  init:'U2', name:'user_2847',    handle:'@user2847',    challenges:3, score:1540, streak:3  },
-    { rank:5,  init:'HN', name:'HuntNation',   handle:'@huntnation',  challenges:2, score:1320, streak:9  },
-    { rank:6,  init:'FR', name:'fastrun99',    handle:'@fastrun99',   challenges:2, score:1190, streak:5  },
-    { rank:7,  init:'CL', name:'CL_finds',     handle:'@clfinds',     challenges:2, score:1050, streak:2  },
-    { rank:8,  init:'MV', name:'MidnightScav', handle:'@midscav',     challenges:1, score: 820, streak:6  },
-    { rank:9,  init:'ZR', name:'Zerofound',    handle:'@zerofound',   challenges:1, score: 710, streak:1  },
-    { rank:10, init:'BR', name:'BlazeRunner',  handle:'@blazerunner', challenges:1, score: 640, streak:4  },
-  ],
-  weekly: [
-    { rank:1,  init:'SD', name:'scav.or.die',  handle:'@scawordie',   challenges:21, score:12440, streak:21 },
-    { rank:2,  init:'SK', name:'xXScavKingXx', handle:'@scavking',    challenges:21, score:11900, streak:14 },
-    { rank:3,  init:'HN', name:'HuntNation',   handle:'@huntnation',  challenges:18, score:10200, streak:9  },
-    { rank:4,  init:'DH', name:'daily.hunter', handle:'@dailyhunter', challenges:17, score: 9800, streak:7  },
-    { rank:5,  init:'FR', name:'fastrun99',     handle:'@fastrun99',  challenges:16, score: 8900, streak:5  },
-    { rank:6,  init:'MV', name:'MidnightScav', handle:'@midscav',     challenges:14, score: 7600, streak:6  },
-    { rank:7,  init:'U2', name:'user_2847',    handle:'@user2847',    challenges:13, score: 6800, streak:3  },
-    { rank:8,  init:'BR', name:'BlazeRunner',  handle:'@blazerunner', challenges:11, score: 5900, streak:4  },
-    { rank:9,  init:'CL', name:'CL_finds',     handle:'@clfinds',     challenges:10, score: 5200, streak:2  },
-    { rank:10, init:'ZR', name:'Zerofound',    handle:'@zerofound',   challenges: 8, score: 4100, streak:1  },
-  ],
-  alltime: [
-    { rank:1,  init:'SD', name:'scav.or.die',  handle:'@scawordie',   challenges:189, score:98420, streak:21 },
-    { rank:2,  init:'HN', name:'HuntNation',   handle:'@huntnation',  challenges:177, score:92100, streak:9  },
-    { rank:3,  init:'SK', name:'xXScavKingXx', handle:'@scavking',    challenges:164, score:84500, streak:14 },
-    { rank:4,  init:'MV', name:'MidnightScav', handle:'@midscav',     challenges:158, score:79200, streak:6  },
-    { rank:5,  init:'FR', name:'fastrun99',    handle:'@fastrun99',   challenges:140, score:71000, streak:5  },
-    { rank:6,  init:'DH', name:'daily.hunter', handle:'@dailyhunter', challenges:132, score:65800, streak:7  },
-    { rank:7,  init:'BR', name:'BlazeRunner',  handle:'@blazerunner', challenges:118, score:58400, streak:4  },
-    { rank:8,  init:'U2', name:'user_2847',    handle:'@user2847',    challenges:104, score:51200, streak:3  },
-    { rank:9,  init:'CL', name:'CL_finds',     handle:'@clfinds',     challenges: 92, score:44600, streak:2  },
-    { rank:10, init:'ZR', name:'Zerofound',    handle:'@zerofound',   challenges: 79, score:37800, streak:1  },
-  ]
-};
-
-// ── Speed Data (time in seconds from challenge drop) ──
-const speedData = {
-  ch1: {
-    label: 'Challenge 1 · Drops 12PM EST · Fastest Completions',
-    entries: [
-      { rank:1,  init:'FR', name:'fastrun99',    handle:'@fastrun99',   secs:214,  submitted:'12:03:34 EST' },
-      { rank:2,  init:'SK', name:'xXScavKingXx', handle:'@scavking',    secs:287,  submitted:'12:04:47 EST' },
-      { rank:3,  init:'HN', name:'HuntNation',   handle:'@huntnation',  secs:341,  submitted:'12:05:41 EST' },
-      { rank:4,  init:'DH', name:'daily.hunter', handle:'@dailyhunter', secs:398,  submitted:'12:06:38 EST' },
-      { rank:5,  init:'SD', name:'scav.or.die',  handle:'@scawordie',   secs:452,  submitted:'12:07:32 EST' },
-      { rank:6,  init:'U2', name:'user_2847',    handle:'@user2847',    secs:519,  submitted:'12:08:39 EST' },
-      { rank:7,  init:'CL', name:'CL_finds',     handle:'@clfinds',     secs:607,  submitted:'12:10:07 EST' },
-      { rank:8,  init:'BR', name:'BlazeRunner',  handle:'@blazerunner', secs:741,  submitted:'12:12:21 EST' },
-      { rank:9,  init:'MV', name:'MidnightScav', handle:'@midscav',     secs:894,  submitted:'12:14:54 EST' },
-      { rank:10, init:'ZR', name:'Zerofound',    handle:'@zerofound',   secs:1102, submitted:'12:18:22 EST' },
-    ]
-  },
-  ch2: {
-    label: 'Challenge 2 · Drops 4PM EST · Fastest Completions',
-    entries: [
-      { rank:1,  init:'SD', name:'scav.or.die',  handle:'@scawordie',   secs:178,  submitted:'4:02:58 EST'  },
-      { rank:2,  init:'HN', name:'HuntNation',   handle:'@huntnation',  secs:256,  submitted:'4:04:16 EST'  },
-      { rank:3,  init:'SK', name:'xXScavKingXx', handle:'@scavking',    secs:312,  submitted:'4:05:12 EST'  },
-      { rank:4,  init:'FR', name:'fastrun99',    handle:'@fastrun99',   secs:389,  submitted:'4:06:29 EST'  },
-      { rank:5,  init:'MV', name:'MidnightScav', handle:'@midscav',     secs:441,  submitted:'4:07:21 EST'  },
-      { rank:6,  init:'DH', name:'daily.hunter', handle:'@dailyhunter', secs:528,  submitted:'4:08:48 EST'  },
-      { rank:7,  init:'BR', name:'BlazeRunner',  handle:'@blazerunner', secs:634,  submitted:'4:10:34 EST'  },
-      { rank:8,  init:'U2', name:'user_2847',    handle:'@user2847',    secs:712,  submitted:'4:11:52 EST'  },
-      { rank:9,  init:'ZR', name:'Zerofound',    handle:'@zerofound',   secs:889,  submitted:'4:14:49 EST'  },
-      { rank:10, init:'CL', name:'CL_finds',     handle:'@clfinds',     secs:1034, submitted:'4:17:14 EST'  },
-    ]
-  },
-  ch3: {
-    label: 'Challenge 3 · Drops 8PM EST · Fastest Completions',
-    entries: [
-      { rank:1,  init:'DH', name:'daily.hunter', handle:'@dailyhunter', secs:198,  submitted:'8:03:18 EST'  },
-      { rank:2,  init:'CL', name:'CL_finds',     handle:'@clfinds',     secs:267,  submitted:'8:04:27 EST'  },
-      { rank:3,  init:'U2', name:'user_2847',    handle:'@user2847',    secs:334,  submitted:'8:05:34 EST'  },
-      { rank:4,  init:'SD', name:'scav.or.die',  handle:'@scawordie',   secs:401,  submitted:'8:06:41 EST'  },
-      { rank:5,  init:'SK', name:'xXScavKingXx', handle:'@scavking',    secs:478,  submitted:'8:07:58 EST'  },
-      { rank:6,  init:'ZR', name:'Zerofound',    handle:'@zerofound',   secs:556,  submitted:'8:09:16 EST'  },
-      { rank:7,  init:'FR', name:'fastrun99',    handle:'@fastrun99',   secs:644,  submitted:'8:10:44 EST'  },
-      { rank:8,  init:'HN', name:'HuntNation',   handle:'@huntnation',  secs:788,  submitted:'8:13:08 EST'  },
-      { rank:9,  init:'BR', name:'BlazeRunner',  handle:'@blazerunner', secs:921,  submitted:'8:15:21 EST'  },
-      { rank:10, init:'MV', name:'MidnightScav', handle:'@midscav',     secs:1147, submitted:'8:19:07 EST'  },
-    ]
-  }
-};
 
 function fmtTime(s) {
   const m = Math.floor(s / 60);
@@ -2494,75 +2397,197 @@ function fmtTime(s) {
   return `${m}m ${sec.toString().padStart(2,'0')}s`;
 }
 
-// ── Render Points Leaderboard ──
+// Get initials from a name for the avatar
+function getInit(name) {
+  if (!name) return '??';
+  const parts = name.replace('@','').split(/[\s._-]/);
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return name.slice(0,2).toUpperCase();
+}
+
+// ══════════════════════════════════════
+// POINTS LEADERBOARD — FIREBASE LIVE
+// ══════════════════════════════════════
+let currentLbTab = 'today';
+let lbListenerRef = null;
+
 function renderLeaderboard(tab = 'today') {
-  const data = lbData[tab];
+  currentLbTab = tab;
   const body = document.getElementById('lb-body');
   const total = tab === 'today' ? 3 : tab === 'weekly' ? 21 : '∞';
-  body.innerHTML = data.map((p, i) => {
-    const color = avatarColors[i % avatarColors.length];
-    const rankClass = p.rank <= 3 ? `r${p.rank}` : '';
-    const rowClass  = p.rank === 1 ? 'lb-row top-row' : 'lb-row';
-    return `
-      <div class="${rowClass}">
-        <div class="lb-rank ${rankClass}">${p.rank}</div>
-        <div class="lb-user">
-          <div class="lb-user-av" style="background:${color}">${p.init}</div>
-          <div>
-            <div class="lb-user-name">${p.name}</div>
-            <div class="lb-user-handle">${p.handle}</div>
+
+  // Show loading state
+  body.innerHTML = `<div style="padding:40px;text-align:center;font-family:'Courier Prime',monospace;font-size:12px;letter-spacing:3px;color:var(--muted)">LOADING RANKINGS...</div>`;
+
+  // Detach old listener
+  if (lbListenerRef) lbListenerRef.off();
+
+  // Listen to Firebase — real-time updates
+  lbListenerRef = db.ref('leaderboard/' + tab);
+  lbListenerRef.orderByChild('score').limitToLast(10).on('value', snapshot => {
+    const rows = [];
+    snapshot.forEach(child => rows.push({ ...child.val(), _key: child.key }));
+
+    // No data yet → show placeholder message
+    if (rows.length === 0) {
+      body.innerHTML = `<div style="padding:60px;text-align:center;font-family:'Courier Prime',monospace;font-size:12px;letter-spacing:3px;color:var(--muted)">NO SCORES YET — BE THE FIRST.</div>`;
+      return;
+    }
+
+    // Sort highest score first, assign ranks
+    rows.sort((a, b) => (b.score || 0) - (a.score || 0));
+    rows.forEach((p, i) => p.rank = i + 1);
+
+    body.innerHTML = rows.map((p, i) => {
+      const color    = avatarColors[i % avatarColors.length];
+      const init     = p.init || getInit(p.name || p._key);
+      const rankClass = p.rank <= 3 ? `r${p.rank}` : '';
+      const rowClass  = p.rank === 1 ? 'lb-row top-row' : 'lb-row';
+      return `
+        <div class="${rowClass}">
+          <div class="lb-rank ${rankClass}">${p.rank}</div>
+          <div class="lb-user">
+            <div class="lb-user-av" style="background:${color}">${init}</div>
+            <div>
+              <div class="lb-user-name">${p.name || p._key}</div>
+              <div class="lb-user-handle">${p.handle || ''}</div>
+            </div>
           </div>
-        </div>
-        <div class="lb-challenges">${p.challenges} / ${total}</div>
-        <div class="lb-score-val">${p.score.toLocaleString()}</div>
-        <div class="lb-streak">🔥 ${p.streak}d</div>
-      </div>`;
-  }).join('');
+          <div class="lb-challenges">${p.challenges || 0} / ${total}</div>
+          <div class="lb-score-val">${(p.score || 0).toLocaleString()}</div>
+          <div class="lb-streak">🔥 ${p.streak || 0}d</div>
+        </div>`;
+    }).join('');
+  }, err => {
+    // Firebase error — show message
+    body.innerHTML = `<div style="padding:40px;text-align:center;font-family:'Courier Prime',monospace;font-size:12px;letter-spacing:3px;color:var(--red)">COULD NOT LOAD — CHECK FIREBASE RULES</div>`;
+    console.error('Firebase leaderboard error:', err);
+  });
 }
 
-// ── Render Speed Leaderboard ──
+// ══════════════════════════════════════
+// SPEED LEADERBOARD — FIREBASE LIVE
+// ══════════════════════════════════════
+const speedLabels = {
+  ch1: 'Challenge 1 · Drops 12PM EST · Fastest Completions',
+  ch2: 'Challenge 2 · Drops 4PM EST · Fastest Completions',
+  ch3: 'Challenge 3 · Drops 8PM EST · Fastest Completions'
+};
+
+let speedListenerRef = null;
+
 function renderSpeedBoard(ch = 'ch1') {
-  const { label, entries } = speedData[ch];
-  document.getElementById('speed-ch-label').textContent = label;
+  document.getElementById('speed-ch-label').textContent = speedLabels[ch] || ch;
   const body = document.getElementById('speed-body');
-  body.innerHTML = entries.map((p, i) => {
-    const color = avatarColors[i % avatarColors.length];
-    const rankClass = p.rank <= 3 ? `r${p.rank}` : '';
-    const rowClass  = p.rank === 1 ? 'lb-row top-row' : 'lb-row';
-    const medal = p.rank === 1 ? '🥇' : p.rank === 2 ? '🥈' : p.rank === 3 ? '🥉' : '';
-    return `
-      <div class="${rowClass}" style="grid-template-columns:60px 1fr 140px 120px">
-        <div class="lb-rank ${rankClass}">${p.rank}</div>
-        <div class="lb-user">
-          <div class="lb-user-av" style="background:${color}">${p.init}</div>
-          <div>
-            <div class="lb-user-name">${p.name}</div>
-            <div class="lb-user-handle">${p.handle}</div>
+  body.innerHTML = `<div style="padding:40px;text-align:center;font-family:'Courier Prime',monospace;font-size:12px;letter-spacing:3px;color:var(--muted)">LOADING TIMES...</div>`;
+
+  if (speedListenerRef) speedListenerRef.off();
+
+  speedListenerRef = db.ref('speedboard/' + ch);
+  speedListenerRef.orderByChild('secs').limitToFirst(10).on('value', snapshot => {
+    const rows = [];
+    snapshot.forEach(child => rows.push({ ...child.val(), _key: child.key }));
+
+    if (rows.length === 0) {
+      body.innerHTML = `<div style="padding:60px;text-align:center;font-family:'Courier Prime',monospace;font-size:12px;letter-spacing:3px;color:var(--muted)">NO TIMES YET — BE THE FIRST.</div>`;
+      return;
+    }
+
+    // Already sorted ascending by secs (fastest first)
+    rows.forEach((p, i) => p.rank = i + 1);
+
+    body.innerHTML = rows.map((p, i) => {
+      const color     = avatarColors[i % avatarColors.length];
+      const init      = p.init || getInit(p.name || p._key);
+      const rankClass = p.rank <= 3 ? `r${p.rank}` : '';
+      const rowClass  = p.rank === 1 ? 'lb-row top-row' : 'lb-row';
+      const medal     = p.rank === 1 ? '🥇' : p.rank === 2 ? '🥈' : p.rank === 3 ? '🥉' : '';
+      return `
+        <div class="${rowClass}" style="grid-template-columns:60px 1fr 140px 120px">
+          <div class="lb-rank ${rankClass}">${p.rank}</div>
+          <div class="lb-user">
+            <div class="lb-user-av" style="background:${color}">${init}</div>
+            <div>
+              <div class="lb-user-name">${p.name || p._key}</div>
+              <div class="lb-user-handle">${p.handle || ''}</div>
+            </div>
           </div>
-        </div>
-        <div class="lb-score-val" style="font-size:16px;color:var(--amber)">${medal} ${fmtTime(p.secs)}</div>
-        <div class="lb-challenges" style="color:var(--muted);font-size:12px">${p.submitted}</div>
-      </div>`;
-  }).join('');
+          <div class="lb-score-val" style="font-size:16px;color:var(--amber)">${medal} ${fmtTime(p.secs || 0)}</div>
+          <div class="lb-challenges" style="color:var(--muted);font-size:12px">${p.submitted || ''}</div>
+        </div>`;
+    }).join('');
+  }, err => {
+    body.innerHTML = `<div style="padding:40px;text-align:center;font-family:'Courier Prime',monospace;font-size:12px;letter-spacing:3px;color:var(--red)">COULD NOT LOAD — CHECK FIREBASE RULES</div>`;
+    console.error('Firebase speedboard error:', err);
+  });
 }
 
-// ── Challenge Suggestion Submit ──
+// ══════════════════════════════════════
+// TAB SWITCHING
+// ══════════════════════════════════════
+let currentMode = 'points';
+
+function switchMode(mode) {
+  currentMode = mode;
+  document.getElementById('mode-points').classList.toggle('active', mode === 'points');
+  document.getElementById('mode-speed').classList.toggle('active',  mode === 'speed');
+  document.getElementById('points-subtabs').style.display = mode === 'points' ? 'flex'  : 'none';
+  document.getElementById('speed-subtabs').style.display  = mode === 'speed'  ? 'flex'  : 'none';
+  document.getElementById('points-table').style.display   = mode === 'points' ? 'block' : 'none';
+  document.getElementById('speed-table').style.display    = mode === 'speed'  ? 'block' : 'none';
+  document.querySelector('.podium').style.display = mode === 'points' ? 'flex' : 'none';
+  if (mode === 'speed') renderSpeedBoard('ch1');
+  else renderLeaderboard('today');
+}
+
+function switchTab(btn, tab) {
+  document.querySelectorAll('#points-subtabs .lb-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderLeaderboard(tab);
+}
+
+function switchSpeedTab(btn, ch) {
+  document.querySelectorAll('#speed-subtabs .lb-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderSpeedBoard(ch);
+}
+
+// ══════════════════════════════════════
+// CHALLENGE SUGGESTION — WRITES TO FIREBASE
+// ══════════════════════════════════════
 function submitSuggestion() {
   const name  = document.getElementById('suggest-name').value.trim();
   const title = document.getElementById('suggest-title').value.trim();
+  const type  = document.getElementById('suggest-type').value;
+  const desc  = document.getElementById('suggest-desc').value.trim();
+
   if (!title) {
     document.getElementById('suggest-title').style.borderColor = 'var(--red)';
     setTimeout(() => document.getElementById('suggest-title').style.borderColor = 'var(--border)', 2000);
     return;
   }
-  // In production: replace this with a Firebase write or form POST
-  document.getElementById('suggest-success').style.display = 'block';
-  document.getElementById('suggest-name').value  = '';
-  document.getElementById('suggest-title').value = '';
-  document.getElementById('suggest-desc').value  = '';
+
+  // Write submission to Firebase under suggestions/
+  db.ref('suggestions').push({
+    name:      name || 'anonymous',
+    title:     title,
+    type:      type,
+    desc:      desc,
+    submitted: new Date().toISOString()
+  }).then(() => {
+    document.getElementById('suggest-success').style.display = 'block';
+    document.getElementById('suggest-name').value  = '';
+    document.getElementById('suggest-title').value = '';
+    document.getElementById('suggest-desc').value  = '';
+  }).catch(err => {
+    console.error('Suggestion submit error:', err);
+    alert('Could not submit — please try again.');
+  });
 }
 
-// ── Init ──
+// ══════════════════════════════════════
+// INIT — start listening on page load
+// ══════════════════════════════════════
 renderLeaderboard('today');
 </script>
 </body>
