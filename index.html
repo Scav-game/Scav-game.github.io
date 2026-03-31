@@ -60,7 +60,7 @@ body {
 .section-title {
   font-family: 'Anton', sans-serif;
   font-size: clamp(38px, 6vw, 72px);
-  line-height: 0.9;
+  line-height: 1.05;
   color: var(--white);
   margin-bottom: 20px;
 }
@@ -683,7 +683,7 @@ nav {
 .download-title {
   font-family: 'Anton', sans-serif;
   font-size: clamp(48px, 8vw, 96px);
-  line-height: 0.88;
+  line-height: 1.05;
   color: var(--white);
   margin-bottom: 24px;
 }
@@ -802,7 +802,7 @@ nav {
 .lb-title {
   font-family: 'Anton', sans-serif;
   font-size: clamp(48px, 10vw, 100px);
-  line-height: 0.88;
+  line-height: 1.05;
   color: var(--white);
 }
 
@@ -1281,7 +1281,7 @@ nav {
 .about-visual-big {
   font-family: 'Anton', sans-serif;
   font-size: 96px;
-  line-height: 0.85;
+  line-height: 1.05;
   color: var(--amber);
   text-shadow: 3px 0 0 var(--orange), -3px 0 0 var(--red);
   margin-bottom: 24px;
@@ -1965,29 +1965,29 @@ footer {
     </div>
 
     <!-- Podium -->
-    <div class="podium">
+    <div class="podium" id="podium-container">
       <!-- 2nd -->
-      <div class="podium-item">
-        <div class="podium-avatar silver">DH</div>
-        <div class="podium-name">daily.hunter</div>
-        <div class="podium-score">1,720 pts</div>
+      <div class="podium-item" id="podium-2">
+        <div class="podium-avatar silver" id="podium-2-av">—</div>
+        <div class="podium-name" id="podium-2-name">—</div>
+        <div class="podium-score" id="podium-2-score">—</div>
         <div class="podium-base second">2</div>
       </div>
       <!-- 1st -->
-      <div class="podium-item">
-        <div class="podium-avatar gold">
+      <div class="podium-item" id="podium-1">
+        <div class="podium-avatar gold" id="podium-1-av">
           <div class="podium-crown">👑</div>
-          SK
+          <span id="podium-1-init">—</span>
         </div>
-        <div class="podium-name">xXScavKingXx</div>
-        <div class="podium-score">1,840 pts</div>
+        <div class="podium-name" id="podium-1-name">—</div>
+        <div class="podium-score" id="podium-1-score">—</div>
         <div class="podium-base first">1</div>
       </div>
       <!-- 3rd -->
-      <div class="podium-item">
-        <div class="podium-avatar bronze">SD</div>
-        <div class="podium-name">scav.or.die</div>
-        <div class="podium-score">1,610 pts</div>
+      <div class="podium-item" id="podium-3">
+        <div class="podium-avatar bronze" id="podium-3-av">—</div>
+        <div class="podium-name" id="podium-3-name">—</div>
+        <div class="podium-score" id="podium-3-score">—</div>
         <div class="podium-base third">3</div>
       </div>
     </div>
@@ -2021,8 +2021,8 @@ footer {
 
     <!-- Firebase note -->
     <div class="lb-firebase-note" style="margin-bottom:80px">
-      <span class="icon">🔥</span>
-      <p><strong>Firebase Connected:</strong> This leaderboard is designed to pull live data from your Firebase Realtime Database. Replace the demo data in the <code>lbData</code> array in the JavaScript with your Firebase SDK calls to get real-time rankings. The UI will update automatically as scores change.</p>
+      <span class="icon">⚡</span>
+      <p><strong>Live Rankings</strong> — Scores update in real time as players complete daily challenges. Rankings reset every night at midnight. The leaderboard shows the top 10 players for today, this week, and all time. Speed board tracks the fastest completion times from the moment each challenge drops.</p>
     </div>
 
   </div>
@@ -2406,8 +2406,28 @@ function getInit(name) {
 }
 
 // ══════════════════════════════════════
-// POINTS LEADERBOARD — FIREBASE LIVE
+// UPDATE PODIUM FROM LIVE DATA
 // ══════════════════════════════════════
+function updatePodium(rows) {
+  const slots = [
+    { rank: 1, av: 'podium-1-init', name: 'podium-1-name', score: 'podium-1-score' },
+    { rank: 2, av: 'podium-2-av',   name: 'podium-2-name', score: 'podium-2-score' },
+    { rank: 3, av: 'podium-3-av',   name: 'podium-3-name', score: 'podium-3-score' },
+  ];
+  slots.forEach(slot => {
+    const p = rows.find(r => r.rank === slot.rank);
+    if (p) {
+      const init = p.init || getInit(p.name || p._key);
+      document.getElementById(slot.av).textContent   = init;
+      document.getElementById(slot.name).textContent = p.name || p._key;
+      document.getElementById(slot.score).textContent = (p.score || 0).toLocaleString() + ' pts';
+    } else {
+      document.getElementById(slot.av).textContent   = '—';
+      document.getElementById(slot.name).textContent = '—';
+      document.getElementById(slot.score).textContent = '—';
+    }
+  });
+}
 let currentLbTab = 'today';
 let lbListenerRef = null;
 
@@ -2437,6 +2457,9 @@ function renderLeaderboard(tab = 'today') {
     // Sort highest score first, assign ranks
     rows.sort((a, b) => (b.score || 0) - (a.score || 0));
     rows.forEach((p, i) => p.rank = i + 1);
+
+    // Update podium if we're on the today tab
+    if (tab === 'today') updatePodium(rows);
 
     body.innerHTML = rows.map((p, i) => {
       const color    = avatarColors[i % avatarColors.length];
